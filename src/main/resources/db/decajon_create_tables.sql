@@ -53,11 +53,15 @@ CREATE TABLE songs(
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create "role" for members privileges on groups
+CREATE TYPE ROLE AS ENUM('Admin', 'Member');
+
 -- Create UsersGroups Table
 CREATE TABLE usersgroups(
 	id SERIAL NOT NULL PRIMARY KEY,
 	user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 	group_id INT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
+	role ROLE DEFAULT('Member'),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -69,6 +73,7 @@ CREATE TABLE userssongs(
 	group_id INT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
 	song_id INT NOT NULL REFERENCES songs(id) ON DELETE CASCADE,
 	performance INT NOT NULL DEFAULT 0,
+	practiced TIMESTAMP DEFAULT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -78,9 +83,10 @@ CREATE TABLE repertoires(
     id SERIAL NOT NULL PRIMARY KEY,
     group_id INT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
     song_id INT NOT NULL REFERENCES songs(id) ON DELETE CASCADE,
-    quality INT,
     tone VARCHAR(255),
     comment VARCHAR(255),
+    performance INT NOT NULL DEFAULT 0,
+    practiced TIMESTAMP DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
