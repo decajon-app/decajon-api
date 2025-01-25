@@ -1,13 +1,16 @@
 package com.decajon.decajon.models;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "groups")
 public class Group
 {
@@ -25,7 +28,7 @@ public class Group
     private String description;
 
     @Column(name = "owner_id", nullable = false)
-    private Long owner;
+    private Long ownerId;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -34,20 +37,14 @@ public class Group
     private LocalDateTime updatedAt;
 
     @PrePersist
-    public void prePersist()
+    public void onCreate()
     {
-        if (createdAt == null)
-        {
-            createdAt = LocalDateTime.now();
-        }
-        if (updatedAt == null)
-        {
-            updatedAt = LocalDateTime.now();
-        }
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
-    public void preUpdate()
+    public void onUpdate()
     {
         updatedAt = LocalDateTime.now();
     }
