@@ -71,6 +71,8 @@ public class SongService
         Song song = songRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("La cancion solicitada no existe. ID: " + id));
 
+        songMapper.updateSongFromDto(songDto, song);
+
         Song updatedSong = songRepository.save(song);
         return songMapper.toDto(updatedSong);
     }

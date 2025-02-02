@@ -2,6 +2,7 @@ package com.decajon.decajon.controllers;
 
 import com.decajon.decajon.dto.SongDto;
 import com.decajon.decajon.services.SongService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class SongController
      * @return ResponseEntity<SongDto>
      */
     @PostMapping
-    public ResponseEntity<SongDto> createSong(@RequestBody SongDto songDto)
+    public ResponseEntity<SongDto> createSong(@RequestBody @Valid SongDto songDto)
     {
         SongDto createdSong = songService.createSong(songDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdSong);

@@ -70,7 +70,7 @@ public class UserController
      * Actualizar un usuario por id
      */
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @Valid @RequestBody UserDto userDto)
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserDto userDto)
     {
         Optional<User> updatedUser = userService.updateUser(id, userDto);
         return updatedUser.map(user -> new ResponseEntity<>(user, HttpStatus.OK))

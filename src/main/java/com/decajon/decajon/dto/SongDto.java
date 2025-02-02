@@ -2,8 +2,7 @@ package com.decajon.decajon.dto;
 
 import lombok.*;
 
-@AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 @Getter
 @Setter
 public class SongDto
