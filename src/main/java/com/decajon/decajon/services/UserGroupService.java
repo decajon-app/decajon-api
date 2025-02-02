@@ -38,8 +38,7 @@ public class UserGroupService
     public UserGroupDto createUserGroup(UserGroupDto userGroupDto)
     {
         UserGroup newUserGroup = userGroupMapper.toEntity(userGroupDto);
-        return userGroupMapper.toDto(
-            userGroupRepository.save(newUserGroup)
-        );
+        UserGroup createdUserGroup = userGroupRepository.save(newUserGroup);
+        return userGroupMapper.toDto(createdUserGroup);
     }
 }

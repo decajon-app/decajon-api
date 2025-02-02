@@ -3,7 +3,10 @@ package com.decajon.decajon.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.time.LocalDateTime;
+
+import static jakarta.persistence.EnumType.STRING;
 
 @Entity
 @Getter
@@ -14,8 +17,8 @@ public class UserGroup
     @EmbeddedId
     private UserGroupId id;
 
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
+    @Column(columnDefinition = "role")
+    private String role;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

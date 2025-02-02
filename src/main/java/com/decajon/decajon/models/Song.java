@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Entity
 @Getter
@@ -27,6 +28,9 @@ public class Song
 
     @Column
     private String title;
+
+    @Column
+    private int duration;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

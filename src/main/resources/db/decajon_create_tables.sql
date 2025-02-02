@@ -55,8 +55,9 @@ CREATE TABLE songs(
     id SERIAL NOT NULL,
 	group_id INT NOT NULL,
 	title VARCHAR(100) NOT NULL,
-	genre_id INT NOT NULL,
-	artist_id INT NOT NULL,
+	duration INT DEFAULT NULL,
+	genre_id INT DEFAULT NULL,
+	artist_id INT DEFAULT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (genre_id) REFERENCES genres(id) ON DELETE SET NULL,
@@ -65,14 +66,11 @@ CREATE TABLE songs(
     PRIMARY KEY (id)
 );
 
--- Create "role" for members privileges on groups
-CREATE TYPE ROLE AS ENUM('Admin', 'Member');
-
 -- Create UsersGroups Table
 CREATE TABLE usersgroups(
 	user_id INT NOT NULL,
 	group_id INT NOT NULL,
-	role ROLE DEFAULT 'Member',
+	role VARCHAR(10) DEFAULT 'MEMBER',
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
