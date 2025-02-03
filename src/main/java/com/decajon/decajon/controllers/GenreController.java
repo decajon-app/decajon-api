@@ -61,14 +61,14 @@ public class GenreController
      * @return
      */
     @PutMapping("/{id}")
-    public ResponseEntity<GenreDto> updateGenre(@PathVariable Long id, @RequestBody GenreDto genreDto)
+    public ResponseEntity<GenreDto> updateGenreById(@PathVariable Long id, @RequestBody GenreDto genreDto)
     {
         return ResponseEntity.ok(genreService.updateGenre(id, genreDto));
     }
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGenre(@PathVariable Long id)
+    public ResponseEntity<Void> deleteGenreById(@PathVariable Long id)
     {
         genreService.deleteGenre(id);
         return ResponseEntity.noContent().build();
