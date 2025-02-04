@@ -2,9 +2,11 @@ package com.decajon.decajon.dto;
 
 import lombok.*;
 
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class SongDto
 {
     private Long id;

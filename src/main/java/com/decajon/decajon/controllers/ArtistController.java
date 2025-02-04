@@ -2,7 +2,6 @@ package com.decajon.decajon.controllers;
 
 import com.decajon.decajon.dto.ArtistDto;
 import com.decajon.decajon.services.ArtistService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -61,7 +60,7 @@ public class ArtistController
      * @return
      */
     @PutMapping("/{id}")
-    public ResponseEntity<ArtistDto> updateArtist(@PathVariable Long id, @RequestBody ArtistDto artistDto)
+    public ResponseEntity<ArtistDto> updateArtistById(@PathVariable Long id, @RequestBody ArtistDto artistDto)
     {
         return ResponseEntity.ok(artistService.updateArtist(id, artistDto));
     }
