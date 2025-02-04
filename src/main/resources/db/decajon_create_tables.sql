@@ -60,6 +60,7 @@ CREATE TABLE songs(
 	artist_id INT DEFAULT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_group_title_artist UNIQUE (group_id, title, artist_id),
     FOREIGN KEY (genre_id) REFERENCES genres(id) ON DELETE SET NULL,
     FOREIGN KEY (artist_id) REFERENCES artists(id) ON DELETE SET NULL,
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
@@ -88,11 +89,14 @@ CREATE TABLE userssongs(
 	practiced TIMESTAMP DEFAULT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_user_group_song UNIQUE (user_id, group_id, song_id),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
     FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
 );
+
+CREATE INDEX idx_user_group_song ON userssongs(user_id, group_id, song_id);
 
 -- Create Repertoires Table
 CREATE TABLE repertoires(
