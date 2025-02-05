@@ -13,7 +13,10 @@ import lombok.*;
 public class UserDto
 {
     @NotBlank(message = "El nombre no debe estar vacío.")
-    private String name;
+    private String firstName;
+
+    @NotBlank(message = "El apellido no debe estar vacío.")
+    private String lastName;
 
     @Email(message = "El correo electrónico no es válido.")
     @NotBlank(message = "El correo electrónico no debe estar vacío.")

@@ -1,19 +1,24 @@
 package com.decajon.decajon.services;
 
 import com.decajon.decajon.dto.UserDto;
+import com.decajon.decajon.mappers.UserMapper;
 import com.decajon.decajon.models.User;
 import com.decajon.decajon.repositories.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService
 {
-    @Autowired
-    private UserRepository userRepository;
 
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     /**
      * Get all users
@@ -35,51 +40,52 @@ public class UserService
 
 
     /**
-     * Create new user
+     *
+     * @param userDto
+     * @return
      */
-    public User createUser(UserDto userDto)
+    @Transactional
+    public UserDto createUser(UserDto userDto)
     {
-        // Mapeo del DTO a User
-        User user = new User();
-        user.setName(userDto.getName());
-        user.setEmail(userDto.getEmail());
-        user.setPassword((userDto.getPassword())); // TODO: cifrar la contraseña
+        User user = userMapper.toEntity(userDto);
+        User savedUser = userRepository.save(user);
 
-        // Guardar el usuario en la bd a través del repository
-        return userRepository.save(user);
+        return userMapper.toDto(savedUser);
     }
 
 
     /**
-     * Update user
+     *
+     * @param id
+     * @param userDto
+     * @return
      */
-    public Optional<User> updateUser(Long id, UserDto userDto)
+    @Transactional
+    public UserDto updateUser(Long id, UserDto userDto)
     {
-        Optional<User> existingUser = userRepository.findById(id);
-        if (existingUser.isPresent())
-        {
-            User user = existingUser.get();
-            user.setName(userDto.getName());
-            user.setEmail(userDto.getEmail());
-            user.setPassword(userDto.getPassword());
-            return Optional.of(userRepository.save(user));
-        }
-        return Optional.empty();
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado, id: " + id));
+
+        userMapper.updatedUserFromDto(userDto, user);;
+        User updatedUser = userRepository.save(user);
+
+        return userMapper.toDto(updatedUser);
     }
 
 
     /**
-     * Delete user
+     *
+     * @param id
+     * @return
      */
-    public boolean deleteUser(Long id)
+    @Transactional
+    public void deleteUser(Long id)
     {
-        Optional<User> user = userRepository.findById(id);
-        if(user.isPresent())
+        if(!userRepository.existsById(id))
         {
-            userRepository.delete(user.get());
-            return true;
+            throw new EntityNotFoundException("Usuario no encontrado, id: " + id);
         }
-        return false;
+        userRepository.deleteById(id);
     }
 
 

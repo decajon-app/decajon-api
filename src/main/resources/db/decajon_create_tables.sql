@@ -8,7 +8,8 @@ CREATE TABLE users(
 	id SERIAL NOT NULL,
 	email VARCHAR(255) UNIQUE NOT NULL,
 	password VARCHAR(255) NOT NULL,
-	name VARCHAR(255) NOT NULL,
+	first_name VARCHAR(50) NOT NULL,
+	last_name VARCHAR(50) NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
@@ -68,7 +69,7 @@ CREATE TABLE songs(
 );
 
 -- Create UsersGroups Table
-CREATE TABLE usersgroups(
+CREATE TABLE users_groups(
 	user_id INT NOT NULL,
 	group_id INT NOT NULL,
 	role VARCHAR(10) DEFAULT 'MEMBER',
@@ -80,23 +81,26 @@ CREATE TABLE usersgroups(
 );
 
 -- Create UsersSongs Table
-CREATE TABLE userssongs(
+CREATE TABLE users_songs(
 	id SERIAL NOT NULL,
 	user_id INT NOT NULL,
 	group_id INT NOT NULL,
 	song_id INT NOT NULL,
 	performance INT NOT NULL DEFAULT 0,
-	practiced TIMESTAMP DEFAULT NULL,
+	practiced_at TIMESTAMP DEFAULT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uq_user_group_song UNIQUE (user_id, group_id, song_id),
+    CONSTRAINT chk_user_performance_range CHECK (performance BETWEEN 0 AND 10),
+    CONSTRAINT chk_user_practiced_not_future CHECK (practiced_at <= CURRENT_TIMESTAMP),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
     FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
 );
 
-CREATE INDEX idx_user_group_song ON userssongs(user_id, group_id, song_id);
+-- Create (user_id, group_id) index for queries with this two columns
+CREATE INDEX idx_user_group ON users_songs(user_id, group_id);
 
 -- Create Repertoires Table
 CREATE TABLE repertoires(
@@ -105,9 +109,11 @@ CREATE TABLE repertoires(
     tone VARCHAR(3) DEFAULT NULL,
     comment VARCHAR(255) DEFAULT NULL,
     performance INT NOT NULL DEFAULT 0,
-    practiced TIMESTAMP DEFAULT NULL,
+    practiced_at TIMESTAMP DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chk_group_performance_range CHECK (performance BETWEEN 0 AND 10),
+    CONSTRAINT chk_group_practiced_not_future CHECK (practiced_at <= CURRENT_TIMESTAMP),
     FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
 );
