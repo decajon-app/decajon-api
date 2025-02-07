@@ -2,12 +2,14 @@ package com.decajon.decajon.models;
 
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "users")
 public class User
 {
@@ -21,11 +23,11 @@ public class User
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private String name;
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
 
-    //@Column(nullable = false)
-    //private String role;
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -34,20 +36,14 @@ public class User
     private LocalDateTime updatedAt;
 
     @PrePersist
-    public void prePersist()
+    public void onCreate()
     {
-        if (createdAt == null)
-        {
-            createdAt = LocalDateTime.now();
-        }
-        if (updatedAt == null)
-        {
-            updatedAt = LocalDateTime.now();
-        }
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
-    public void preUpdate()
+    public void onUpdate()
     {
         updatedAt = LocalDateTime.now();
     }

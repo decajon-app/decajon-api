@@ -4,8 +4,7 @@ import com.decajon.decajon.dto.UserDto;
 import com.decajon.decajon.models.User;
 import com.decajon.decajon.services.UserService;
 import jakarta.validation.Valid;
-import org.apache.coyote.Response;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +13,11 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/users")
 public class UserController
 {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
 
     /**
@@ -36,10 +35,9 @@ public class UserController
      * Crear un nuevo usuario
      */
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody @Valid UserDto userDto)
+    public ResponseEntity<UserDto> createUser(@RequestBody @Valid UserDto userDto)
     {
-        User createdUser = userService.createUser(userDto);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+        return ResponseEntity.ok(userService.createUser(userDto));
     }
 
 
@@ -70,11 +68,9 @@ public class UserController
      * Actualizar un usuario por id
      */
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @Valid @RequestBody UserDto userDto)
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody UserDto userDto)
     {
-        Optional<User> updatedUser = userService.updateUser(id, userDto);
-        return updatedUser.map(user -> new ResponseEntity<>(user, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return ResponseEntity.ok(userService.updateUser(id, userDto));
     }
 
 
@@ -84,8 +80,7 @@ public class UserController
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id)
     {
-        boolean isDeleted = userService.deleteUser(id);
-        return isDeleted ? new ResponseEntity<>(HttpStatus.NO_CONTENT)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

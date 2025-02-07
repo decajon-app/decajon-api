@@ -2,24 +2,26 @@ package com.decajon.decajon.models;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+@RequiredArgsConstructor
 @Entity
 @Getter
 @Setter
-@Table(name = "genres")
+@Table(name = "genres", uniqueConstraints = @UniqueConstraint(columnNames = {"group_id", "genre"}))
 public class Genre
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "group_id")
+    @Column(name = "group_id", nullable = false)
     private Long groupId;
 
-    @Column
+    @Column(nullable = false, length = 25)
     private String genre;
 
     @Column(name = "created_at", updatable = false)

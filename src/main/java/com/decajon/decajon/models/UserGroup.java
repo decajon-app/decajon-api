@@ -6,21 +6,19 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+import static jakarta.persistence.EnumType.STRING;
+
 @Entity
 @Getter
 @Setter
-@Table(name = "usersgroups")
+@Table(name = "users_groups")
 public class UserGroup
 {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @EmbeddedId
+    private UserGroupId id;
 
-    @Column(name = "user_id")
-    private Long userId;
-
-    @Column(name = "group_id")
-    private Long groupId;
+    @Column(columnDefinition = "role")
+    private String role;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
