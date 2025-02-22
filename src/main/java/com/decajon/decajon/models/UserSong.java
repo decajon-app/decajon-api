@@ -10,24 +10,29 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@Table(name = "users_songs")
+@Table(name = "users_songs", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"user_id", "group_id", "song_id"})
+})
 public class UserSong
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "song_id")
-    private Long songId;
-
-    @Column(name = "group_id")
+    @Column(name = "group_id", nullable = false)
     private Long groupId;
 
-    @Column
-    private Long performance;
+    @Column(name = "song_id", nullable = false)
+    private Long songId;
+
+    @Column(nullable = false)
+    private int performance = 0;
+
+    @Column(name = "practiced_at")
+    private LocalDateTime practicedAt;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
