@@ -1,6 +1,7 @@
 package com.decajon.decajon.controllers;
 
 import com.decajon.decajon.dto.UserDto;
+import com.decajon.decajon.dto.UserRequestDto;
 import com.decajon.decajon.models.User;
 import com.decajon.decajon.services.UserService;
 import jakarta.validation.Valid;
@@ -28,27 +29,6 @@ public class UserController
     public String getHealth()
     {
         return "OK";
-    }
-
-
-    /**
-     * Crear un nuevo usuario
-     */
-    @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody @Valid UserDto userDto)
-    {
-        return ResponseEntity.ok(userService.createUser(userDto));
-    }
-
-
-    /**
-     * Obtiene todos los usuarios
-     */
-    @GetMapping
-    public ResponseEntity<List<User>> getAllUsers()
-    {
-        List<User> users = userService.getAllUsers();
-        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
 

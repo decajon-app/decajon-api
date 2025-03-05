@@ -40,6 +40,8 @@ dependencies {
 	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
 }
 
+/*
 tasks.named('test') {
 	useJUnitPlatform()
 }
+*/

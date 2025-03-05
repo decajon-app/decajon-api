@@ -15,33 +15,35 @@ import java.util.Date;
 @Component
 public class JwtUtil
 {
-    private final String SECRET_KEY;
+    @Value("${jwt.secret}")
+    private String SECRET_KEY;
 
-    public JwtUtil(@Value("${jwt.secret}") String secretKey)
+    public JwtUtil(
+            @Value("${jwt.secret}") String SECRET_KEY)
     {
-        this.SECRET_KEY = secretKey;
+        this.SECRET_KEY = SECRET_KEY;
     }
 
-    public String generateToken(String username)
+    public String generateToken(String email)
     {
         Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(email)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String extractUsername(String token)
+    public String extractEmail(String token)
     {
         return getClaims(token).getSubject();
     }
 
     public boolean validateToken(String token, UserDetails userDetails)
     {
-        String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        String email = extractEmail(token);
+        return email.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token)

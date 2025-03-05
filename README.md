@@ -12,3 +12,9 @@ Si es windows la ruta debe estar de la siguiente manera:
 C:/Users/Edgar/Documents/decajon/src/main/resources/db/decajon_create_db.sql
 C:/Users/Edgar/Documents/decajon/src/main/resources/db/decajon_create_tables.sql
 
+Estamos utilizando JWT Auth para la autenticación y tokens
+
+También estamos utilizando BCrypt que viene incluido con
+Spring Security, para la encriptación de las contraseñas de los usuarios.
+
+La otra opcion de encriptacion era Argon2, más seguro que la anterior, pero también más lenta.

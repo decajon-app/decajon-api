@@ -1,19 +1,20 @@
 package com.decajon.decajon.mappers;
 
 import com.decajon.decajon.dto.UserDto;
+import com.decajon.decajon.dto.UserRequestDto;
 import com.decajon.decajon.models.User;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
-public interface UserMapper
+public abstract class UserMapper
 {
-    UserDto toDto(User user);
+    public abstract UserDto toDto(User user);
 
-    User toEntity(UserDto userDto);
+    @Mapping(target = "email", source = "email")
+    @Mapping(target = "firstName", source = "firstName")
+    @Mapping(target = "lastName", source = "lastName")
+    public abstract User toEntity(UserRequestDto userRequestDto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updatedUserFromDto(UserDto userDto, @MappingTarget User user);
+    public abstract void updateUserFromDto(UserDto userDto, @MappingTarget User user);
 }

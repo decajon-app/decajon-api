@@ -1,35 +1,27 @@
 package com.decajon.decajon.services;
 
 import com.decajon.decajon.dto.UserDto;
+import com.decajon.decajon.dto.UserRequestDto;
 import com.decajon.decajon.mappers.UserMapper;
 import com.decajon.decajon.models.User;
 import com.decajon.decajon.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService
 {
-
+    private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-
-    /**
-     * Get all users
-     */
-    public List<User> getAllUsers()
-    {
-        return userRepository.findAll();
-    }
 
 
     /**
@@ -43,14 +35,22 @@ public class UserService implements UserDetailsService
 
 
     /**
-     *
-     * @param userDto
-     * @return
+     * Registrar un nuevo usuario.
+     * Recibe un UserRequestDto, que contiene la contraseña.
+     * Regresa un UserDto, que son los datos sin la contraseña.
+     * @param userRequestDto
+     * @return UserDto
      */
     @Transactional
-    public UserDto createUser(UserDto userDto)
+    public UserDto createUser(UserRequestDto userRequestDto)
     {
-        User user = userMapper.toEntity(userDto);
+        if(userRepository.findByEmail(userRequestDto.getEmail()).isPresent())
+        {
+            throw new RuntimeException("El email ya está registrado.");
+        }
+
+        User user = userMapper.toEntity(userRequestDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userRepository.save(user);
 
         return userMapper.toDto(savedUser);
@@ -69,7 +69,7 @@ public class UserService implements UserDetailsService
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado, id: " + id));
 
-        userMapper.updatedUserFromDto(userDto, user);;
+        userMapper.updateUserFromDto(userDto, user);
         User updatedUser = userRepository.save(user);
 
         return userMapper.toDto(updatedUser);
