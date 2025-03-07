@@ -1,63 +1,63 @@
 package com.decajon.decajon.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
-import java.nio.charset.StandardCharsets;
+import java.nio.file.AccessDeniedException;
 import java.security.Key;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 @Component
 public class JwtUtil
 {
-    @Value("${jwt.secret}")
-    private String SECRET_KEY;
+    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private static final int MINUTES = 60;
 
-    public JwtUtil(
-            @Value("${jwt.secret}") String SECRET_KEY)
+    public static String generateToken(String email)
     {
-        this.SECRET_KEY = SECRET_KEY;
-    }
-
-    public String generateToken(String email)
-    {
-        Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
+        var now = Instant.now();
         return Jwts.builder()
                 .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(now.plus(MINUTES, ChronoUnit.MINUTES)))
+                .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public String extractEmail(String token)
+    public static String extractEmail(String token) throws AccessDeniedException
     {
-        return getClaims(token).getSubject();
+        return getTokenBody(token).getSubject();
     }
 
-    public boolean validateToken(String token, UserDetails userDetails)
+    public static Boolean validateToken(String token, UserDetails userDetails) throws AccessDeniedException
     {
-        String email = extractEmail(token);
+        final String email = extractEmail(token);
         return email.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
-    private boolean isTokenExpired(String token)
+    private static boolean isTokenExpired(String token) throws AccessDeniedException
     {
-        return getClaims(token).getExpiration().before(new Date());
+        Claims claims = getTokenBody(token);
+        return claims.getExpiration().before(new Date());
     }
 
-    private Claims getClaims(String token)
+    private static Claims getTokenBody(String token) throws AccessDeniedException
     {
-        Key key = Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8));
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try
+        {
+            return Jwts
+                    .parserBuilder()
+                    .setSigningKey(SECRET_KEY)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        }
+        catch (ExpiredJwtException e)
+        {
+            throw new AccessDeniedException("Access denied: " + e.getMessage());
+        }
     }
 }

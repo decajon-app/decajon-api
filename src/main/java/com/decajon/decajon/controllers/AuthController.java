@@ -9,6 +9,9 @@ import com.decajon.decajon.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController
 {
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
@@ -32,6 +36,9 @@ public class AuthController
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto)
     {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequestDto.getEmail(), loginRequestDto.getPassword())
+        );
         LoginResponseDto response = authenticationService.login(loginRequestDto);
         return ResponseEntity.ok(response);
     }

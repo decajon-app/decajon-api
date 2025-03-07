@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -19,15 +18,16 @@ public class UserDetailsServiceImpl implements UserDetailsService
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        System.out.println("Buscando usuario con email: " + email);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException
+    {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con email: " + email));
-        System.out.println("Usuario encontrado: " + user.getEmail());
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                List.of(new SimpleGrantedAuthority("USER"))
-        );
+            .orElseThrow(() -> new UsernameNotFoundException(String.format(
+                "El email no ha sido encontrado, email: %s", email
+        )));
+
+        return org.springframework.security.core.userdetails.User.builder()
+            .username(user.getEmail())
+            .password(user.getPassword())
+            .build();
     }
 }
