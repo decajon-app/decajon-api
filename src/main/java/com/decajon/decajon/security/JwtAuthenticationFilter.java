@@ -6,7 +6,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +23,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
 {
     private final UserDetailsServiceImpl userDetailsService;
     private final ObjectMapper objectMapper;
+    private final JwtUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -37,7 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
             if(authHeader != null && authHeader.startsWith("Bearer "))
             {
                 token = authHeader.substring(7);
-                email = JwtUtil.extractEmail(token);
+                email = jwtUtil.extractEmail(token);
             }
 
             if(token == null)
@@ -49,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter
             if(email != null && SecurityContextHolder.getContext().getAuthentication() == null)
             {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-                if(JwtUtil.validateToken(token, userDetails))
+                if(jwtUtil.validateToken(token))
                 {
                     UsernamePasswordAuthenticationToken authenticationToken
                         = new UsernamePasswordAuthenticationToken(userDetails, null, null);

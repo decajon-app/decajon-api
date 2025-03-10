@@ -8,16 +8,13 @@ import com.decajon.decajon.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserDetailsService
+public class UserService
 {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
@@ -92,10 +89,24 @@ public class UserService implements UserDetailsService
     }
 
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException
+    /**
+     *
+     * @param email
+     * @return
+     */
+    public Optional<User> getUserByEmail(String email)
     {
-        return userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
+        return userRepository.findByEmail(email);
+    }
+
+    /**
+     * Metodo para actualizar el refresh_token de la bd cuando se realiza un refresh del token
+     * @param email
+     * @param refreshToken
+     */
+    @Transactional
+    public void updateRefreshToken(String email, String refreshToken)
+    {
+        userRepository.updateRefreshToken(email, refreshToken);
     }
 }

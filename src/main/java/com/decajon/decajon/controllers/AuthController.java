@@ -1,30 +1,42 @@
 package com.decajon.decajon.controllers;
 
-import com.decajon.decajon.dto.LoginRequestDto;
-import com.decajon.decajon.dto.LoginResponseDto;
-import com.decajon.decajon.dto.UserDto;
-import com.decajon.decajon.dto.UserRequestDto;
+import com.decajon.decajon.dto.*;
+import com.decajon.decajon.models.User;
+import com.decajon.decajon.security.JwtUtil;
 import com.decajon.decajon.services.AuthenticationService;
 import com.decajon.decajon.services.UserService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.file.AccessDeniedException;
+import java.util.Optional;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController
 {
+    private final JwtUtil jwtUtil;
     private final UserService userService;
-    private final AuthenticationManager authenticationManager;
     private final AuthenticationService authenticationService;
+
+    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 5;
+    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
+    /* Explicacion de los valores para la expiracion de los tokens:
+     * 1000 * 60 * 60 * 24 * 7
+     * 1s * 60 = 1 min
+     * 1min * 60 = 1h
+     * 1h * 24 = 1d
+     * 1d * 7 = 7d
+     */
 
     @PostMapping("/register")
     public ResponseEntity<UserDto> registerUser(@RequestBody @Valid UserRequestDto userRequestDto)
@@ -34,12 +46,34 @@ public class AuthController
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto)
+    public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginRequestDto loginRequestDto)
     {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequestDto.getEmail(), loginRequestDto.getPassword())
-        );
         LoginResponseDto response = authenticationService.login(loginRequestDto);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshAccessToken(@RequestBody TokenRequestDto request) throws AccessDeniedException
+    {
+        String refreshToken = request.getRefreshToken();
+        if(!jwtUtil.validateToken(refreshToken))
+        {
+            return ResponseEntity.status(401).body("Refresh token no valido");
+        }
+
+        String email = jwtUtil.extractEmail(refreshToken);
+        Optional<User> user = userService.getUserByEmail(email);
+
+        if(user.isPresent() && refreshToken.equals(user.get().getRefreshToken()))
+        {
+            String newAccessToken = jwtUtil.generateToken(email, ACCESS_TOKEN_EXPIRATION);
+            String newRefreshToken = jwtUtil.generateToken(email, REFRESH_TOKEN_EXPIRATION);
+
+            userService.updateRefreshToken(email, newRefreshToken);
+
+            return ResponseEntity.ok(new LoginResponseDto(newAccessToken, newRefreshToken));
+        }
+
+        return ResponseEntity.status(401).body("Refresh token no valido");
     }
 }

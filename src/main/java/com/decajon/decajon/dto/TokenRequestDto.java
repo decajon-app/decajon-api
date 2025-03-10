@@ -2,11 +2,12 @@ package com.decajon.decajon.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 @AllArgsConstructor
 @Getter
-public class LoginResponseDto
+@Setter
+public class TokenRequestDto
 {
-    private String accessToken;
     private String refreshToken;
 }

@@ -12,6 +12,7 @@ CREATE TABLE users(
 	last_name VARCHAR(50) NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	refresh_token TEXT,
     PRIMARY KEY (id)
 );
 

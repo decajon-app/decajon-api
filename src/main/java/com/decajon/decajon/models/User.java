@@ -40,6 +40,9 @@ public class User implements UserDetails
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "refresh_token", columnDefinition = "TEXT")
+    private String refreshToken;
+
     @PrePersist
     public void onCreate()
     {
