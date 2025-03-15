@@ -22,17 +22,6 @@ public class UserController
 
 
     /**
-     * Revisa el estado del controlador
-     * @return String
-     */
-    @GetMapping("/health")
-    public String getHealth()
-    {
-        return "OK";
-    }
-
-
-    /**
      * Obtener un usuario por su id
      */
     @GetMapping("/{id}")

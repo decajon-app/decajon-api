@@ -19,8 +19,8 @@ CREATE TABLE users(
 -- Create Groups Table
 CREATE TABLE groups(
 	id SERIAL NOT NULL,
-	name VARCHAR(255) NOT NULL,
-	password VARCHAR(255) NOT NULL,
+	name VARCHAR(50) NOT NULL,
+	password VARCHAR(20) NOT NULL,
 	description TEXT,
 	owner_id INT NOT NULL REFERENCES users(id) ON DELETE SET NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

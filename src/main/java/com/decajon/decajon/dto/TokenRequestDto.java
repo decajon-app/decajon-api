@@ -1,5 +1,6 @@
 package com.decajon.decajon.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,5 +10,6 @@ import lombok.Setter;
 @Setter
 public class TokenRequestDto
 {
+    @NotBlank
     private String refreshToken;
 }
