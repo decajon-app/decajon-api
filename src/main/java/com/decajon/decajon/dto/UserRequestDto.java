@@ -9,6 +9,7 @@ import lombok.Getter;
 public class UserRequestDto
 {
     @Email(message = "El email es obligatorio.")
+    @Email
     private String email;
 
     @NotBlank(message = "La contraseña es obligatoria.")
