@@ -17,6 +17,7 @@ public class RepertoireDto
     private String tone;
     private String comment;
     private int performance;
+    private int popularity;
     private LocalDateTime practiced;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
