@@ -29,6 +29,9 @@ public class Repertoire
     private Long performance;
 
     @Column
+    private Long popularity;
+
+    @Column
     private LocalDateTime practiced;
 
     @Column(name = "created_at", updatable = false)

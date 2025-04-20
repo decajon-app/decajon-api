@@ -1,5 +1,6 @@
 package com.decajon.decajon.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -13,16 +14,16 @@ import java.time.LocalDateTime;
 @Builder
 public class GroupDto
 {
+    @NotBlank(message = "El campo {id} del grupo se encuentra vacío.")
     private Integer id;
 
-    @NotNull(message = "No se puede crear un grupo sin un propietario del grupo.")
+    @NotNull(message = "El campo {ownerId} del grupo se encuentra vacío.")
     private Integer ownerId;
 
-    @NotNull(message = "El grupo debe tener un nombre obligatorio")
+    @NotNull(message = "El campo {name} del grupo se encuentra vacío.")
     private String name;
 
-    @NotNull(message = "Es obligatorio tener una contraseña para crear el grupo.")
-    @Size(min = 8)
+    @NotNull(message = "El campo {password} del grupo se encuentra vacío.")
     private String password;
 
     private String description;

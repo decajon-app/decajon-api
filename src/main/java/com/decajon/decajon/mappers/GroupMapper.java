@@ -1,12 +1,22 @@
 package com.decajon.decajon.mappers;
 
+import com.decajon.decajon.dto.CreateGroupDto;
 import com.decajon.decajon.dto.GroupDto;
 import com.decajon.decajon.models.Group;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
-public interface GroupMapper
+public abstract class GroupMapper
 {
-    GroupDto toDto(Group group);
-    Group toEntity(GroupDto groupDto);
+    public abstract GroupDto toDto(Group group);
+
+    public abstract GroupDto toDto(CreateGroupDto groupDto);
+
+    public abstract Group toEntity(GroupDto createGroupDto);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    public abstract void updateGroupFromDto(GroupDto groupDto, @MappingTarget Group group);
 }

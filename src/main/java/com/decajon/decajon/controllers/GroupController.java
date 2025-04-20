@@ -1,5 +1,6 @@
 package com.decajon.decajon.controllers;
 
+import com.decajon.decajon.dto.CreateGroupDto;
 import com.decajon.decajon.dto.GroupDto;
 import com.decajon.decajon.services.GroupService;
 import jakarta.validation.Valid;
@@ -17,14 +18,13 @@ public class GroupController
 {
     private final GroupService groupService;
 
-    /**
-     * Revisa el estado del controlador
-     * @return String
-     */
-    @GetMapping("/health")
-    public String getHealth()
+
+    @PostMapping
+    public ResponseEntity<GroupDto> createGroup(@RequestBody @Valid CreateGroupDto groupDto)
     {
-        return "OK";
+        System.out.println("HOLA");
+        GroupDto newGroup = groupService.createGroup(groupDto);
+        return ResponseEntity.ok(newGroup);
     }
 
 
@@ -40,14 +40,6 @@ public class GroupController
     {
         Optional<GroupDto> group = groupService.getGroupById(id);
         return group.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-
-    @PostMapping
-    public ResponseEntity<GroupDto> createGroup(@RequestBody @Valid GroupDto groupDto)
-    {
-        GroupDto newGroup = groupService.createGroup(groupDto);
-        return ResponseEntity.ok(newGroup);
     }
 
 

@@ -1,13 +1,16 @@
 package com.decajon.decajon.models;
 
+import com.decajon.decajon.repositories.UserGroupRepository;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 import static jakarta.persistence.EnumType.STRING;
 
+@NoArgsConstructor
 @Entity
 @Getter
 @Setter

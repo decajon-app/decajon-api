@@ -3,6 +3,7 @@
  * Description: craetes all necessary tables for decajon database
  **/
 
+
 -- Create Users table
 CREATE TABLE users(
 	id SERIAL NOT NULL,
@@ -12,20 +13,23 @@ CREATE TABLE users(
 	last_name VARCHAR(50) NOT NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	refresh_token TEXT,
     PRIMARY KEY (id)
 );
+
 
 -- Create Groups Table
 CREATE TABLE groups(
 	id SERIAL NOT NULL,
-	name VARCHAR(255) NOT NULL,
-	password VARCHAR(255) NOT NULL,
+	name VARCHAR(50) NOT NULL,
+	password VARCHAR(20) NOT NULL,
 	description TEXT,
 	owner_id INT NOT NULL REFERENCES users(id) ON DELETE SET NULL,
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 );
+
 
 -- Create Genres Table
 CREATE TABLE genres(
@@ -39,6 +43,7 @@ CREATE TABLE genres(
     PRIMARY KEY (id)
 );
 
+
 -- Create Artists Table
 CREATE TABLE artists(
 	id SERIAL NOT NULL,
@@ -50,6 +55,7 @@ CREATE TABLE artists(
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
 );
+
 
 -- Create Songs Table
 CREATE TABLE songs(
@@ -68,6 +74,7 @@ CREATE TABLE songs(
     PRIMARY KEY (id)
 );
 
+
 -- Create UsersGroups Table
 CREATE TABLE users_groups(
 	user_id INT NOT NULL,
@@ -79,6 +86,7 @@ CREATE TABLE users_groups(
     FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
     PRIMARY KEY (user_id, group_id)
 );
+
 
 -- Create UsersSongs Table
 CREATE TABLE users_songs(
@@ -98,22 +106,51 @@ CREATE TABLE users_songs(
     FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
 );
-
 -- Create (user_id, group_id) index for queries with this two columns
 CREATE INDEX idx_user_group ON users_songs(user_id, group_id);
+
 
 -- Create Repertoires Table
 CREATE TABLE repertoires(
     id SERIAL NOT NULL,
+    group_id INT NOT NULL,
     song_id INT NOT NULL,
     tone VARCHAR(3) DEFAULT NULL,
     comment VARCHAR(255) DEFAULT NULL,
     performance INT NOT NULL DEFAULT 0,
+    popularity INT NOT NULL DEFAULT 0,
+    complexity INT NOT NULL DEFAULT 0,
     practiced_at TIMESTAMP DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT chk_group_performance_range CHECK (performance BETWEEN 0 AND 10),
-    CONSTRAINT chk_group_practiced_not_future CHECK (practiced_at <= CURRENT_TIMESTAMP),
+    CONSTRAINT chk_song_performance_range CHECK (performance BETWEEN 0 AND 10),
+    CONSTRAINT chk_song_complexity_range CHECK (complexity BETWEEN 0 AND 10),
+    CONSTRAINT chk_song_practiced_not_future CHECK (practiced_at <= CURRENT_TIMESTAMP),
     FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
+);
+-- Create (group_id) index for filter songs in the repertoire by group
+CREATE INDEX idx_group ON repertoires(group_id)
+
+
+-- Create Rehearsals Table
+CREATE TABLE rehearsals(
+    id SERIAL NOT NULL,
+    group_id INT NOT NULL,
+    status VARCHAR(15) NOT NULL DEFAULT 'PENDING',
+    scheduled_at TIMESTAMP DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+);
+
+
+-- Create RehearsalsSongs Table
+CREATE TABLE rehearsals_songs (
+    rehearsal_id INT NOT NULL,
+    song_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (rehearsal_id) REFERENCES rehearsals(id) ON DELETE CASCADE,
+    FOREIGN KEY (song_id) REFERENCES repertoires(id) ON DELETE CASCADE,
+    PRIMARY KEY (rehearsal_id, song_id)
 );

@@ -1,8 +1,13 @@
 package com.decajon.decajon.models;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Getter
@@ -11,7 +16,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
-public class User
+public class User implements UserDetails
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +40,9 @@ public class User
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "refresh_token", columnDefinition = "TEXT")
+    private String refreshToken;
+
     @PrePersist
     public void onCreate()
     {
@@ -46,5 +54,17 @@ public class User
     public void onUpdate()
     {
         updatedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities()
+    {
+        return List.of();
+    }
+
+    @Override
+    public String getUsername()
+    {
+        return this.getEmail();
     }
 }
