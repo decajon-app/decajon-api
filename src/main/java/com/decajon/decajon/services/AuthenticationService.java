@@ -2,12 +2,15 @@ package com.decajon.decajon.services;
 
 import com.decajon.decajon.dto.LoginRequestDto;
 import com.decajon.decajon.dto.LoginResponseDto;
+import com.decajon.decajon.models.User;
 import com.decajon.decajon.repositories.UserRepository;
 import com.decajon.decajon.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -30,18 +33,33 @@ public class AuthenticationService
 
     public LoginResponseDto login(LoginRequestDto loginRequestDto)
     {
+        final String userEmail = loginRequestDto.getEmail();
+
+        // Recuperar la informacion del usuario
+        Optional<User> loggedInUser = userRepository.findByEmail(userEmail);
+        if(loggedInUser.isEmpty()) {
+            throw new RuntimeException("El usuario con el email " + userEmail + " no existe.");
+        }
+
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(
-                loginRequestDto.getEmail(),
+                userEmail,
                 loginRequestDto.getPassword()
             )
         );
 
-        String accessToken = jwtUtil.generateToken(loginRequestDto.getEmail(), ACCESS_TOKEN_EXPIRATION);
-        String refreshToken = jwtUtil.generateToken(loginRequestDto.getEmail(), REFRESH_TOKEN_EXPIRATION);
+        String accessToken = jwtUtil.generateToken(userEmail, ACCESS_TOKEN_EXPIRATION);
+        String refreshToken = jwtUtil.generateToken(userEmail, REFRESH_TOKEN_EXPIRATION);
 
+        // Guardar el refresh token en la bd
         userRepository.updateRefreshToken(loginRequestDto.getEmail(), refreshToken);
 
-        return new LoginResponseDto(accessToken, refreshToken);
+        return new LoginResponseDto(
+                accessToken,
+                loggedInUser.get().getId(),
+                loggedInUser.get().getEmail(),
+                loggedInUser.get().getFirstName(),
+                loggedInUser.get().getLastName()
+        );
     }
 }

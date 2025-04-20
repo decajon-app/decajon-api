@@ -16,11 +16,4 @@ public class CreateGroupDto
 
     @NotNull(message = "No se puede crear un grupo sin un propietario del grupo.")
     private Long ownerId;
-
-    @NotBlank(message = "Es obligatorio tener una contraseña para crear el grupo.")
-    @Size(min = 6, max = 20)
-    private String password;
-
-    @NotNull
-    private String description;
 }

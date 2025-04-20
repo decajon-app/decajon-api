@@ -22,6 +22,7 @@ public class GroupController
     @PostMapping
     public ResponseEntity<GroupDto> createGroup(@RequestBody @Valid CreateGroupDto groupDto)
     {
+        System.out.println("HOLA");
         GroupDto newGroup = groupService.createGroup(groupDto);
         return ResponseEntity.ok(newGroup);
     }

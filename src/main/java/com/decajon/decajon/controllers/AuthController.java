@@ -8,6 +8,7 @@ import com.decajon.decajon.services.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.file.AccessDeniedException;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -28,8 +30,8 @@ public class AuthController
     private final UserService userService;
     private final AuthenticationService authenticationService;
 
-    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 5;
-    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
+    private static final long ACCESS_TOKEN_EXPIRATION = 1000L * 60 * 60 * 24 * 7; // 7 días
+    private static final long REFRESH_TOKEN_EXPIRATION = 1000L * 60 * 60 * 24 * 31; // 31 días
     /* Explicacion de los valores para la expiracion de los tokens:
      * 1000 * 60 * 60 * 24 * 7
      * 1s * 60 = 1 min
@@ -39,10 +41,10 @@ public class AuthController
      */
 
     @PostMapping("/register")
-    public ResponseEntity<UserDto> registerUser(@RequestBody @Valid UserRequestDto userRequestDto)
+    public ResponseEntity<?> registerUser(@RequestBody @Valid UserRequestDto userRequestDto)
     {
         UserDto savedUser = userService.createUser(userRequestDto);
-        return ResponseEntity.ok(savedUser);
+        return ResponseEntity.ok(HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
@@ -71,7 +73,7 @@ public class AuthController
 
             userService.updateRefreshToken(email, newRefreshToken);
 
-            return ResponseEntity.ok(new LoginResponseDto(newAccessToken, newRefreshToken));
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of("accessToken", newAccessToken));
         }
 
         return ResponseEntity.status(401).body("Refresh token no valido");

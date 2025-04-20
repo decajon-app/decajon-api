@@ -54,7 +54,6 @@ public class SecurityConfig
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/**").permitAll()
                     .anyRequest().authenticated())
             .authenticationManager(authenticationManager)
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)

@@ -10,6 +10,7 @@ import com.decajon.decajon.repositories.GroupRepository;
 import com.decajon.decajon.dto.GroupDto;
 
 import com.decajon.decajon.repositories.UserGroupRepository;
+import com.decajon.decajon.utils.GroupPasswordGenerator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,23 +31,28 @@ public class GroupService
 
 
     @Transactional
-    public GroupDto createGroup(CreateGroupDto groupDto)
+    public GroupDto createGroup(CreateGroupDto groupRequestDto)
     {
         // Se verifica que el grupo no exista previamente
         // Nota: no pueden existir dos grupos con el mismo nombre
-        if (groupRepository.findByName(groupDto.getName()).isPresent())
+        if (groupRepository.findByName(groupRequestDto.getName()).isPresent())
         {
             throw new RuntimeException("El nombre del grupo ya existe.");
         }
 
+        GroupDto newGroupDto = groupMapper.toDto(groupRequestDto);
+        String generatedPassword = GroupPasswordGenerator.generateRandomPassword();
+        newGroupDto.setPassword(generatedPassword);
+
         // Se guarda primero el grupo
-        Group newGroup = groupMapper.toEntity(groupDto);
+        Group newGroup = groupMapper.toEntity(newGroupDto);
         Group savedGroup = groupRepository.save(newGroup);
 
         // Ahora se inserta la relacion usuario-grupo
         UserGroupDto newUserGroupDto = new UserGroupDto(
             savedGroup.getOwnerId(),
             savedGroup.getId(),
+            savedGroup.getPassword(),
             "OWNER"
         );
         UserGroup newUserGroup = userGroupMapper.toEntity(newUserGroupDto);

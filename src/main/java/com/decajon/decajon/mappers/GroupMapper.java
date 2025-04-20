@@ -13,7 +13,9 @@ public abstract class GroupMapper
 {
     public abstract GroupDto toDto(Group group);
 
-    public abstract Group toEntity(CreateGroupDto createGroupDto);
+    public abstract GroupDto toDto(CreateGroupDto groupDto);
+
+    public abstract Group toEntity(GroupDto createGroupDto);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     public abstract void updateGroupFromDto(GroupDto groupDto, @MappingTarget Group group);
