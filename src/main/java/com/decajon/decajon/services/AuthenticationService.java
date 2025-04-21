@@ -20,8 +20,8 @@ public class AuthenticationService
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
-    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 5;
-    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
+    private static final long ACCESS_TOKEN_EXPIRATION = 1000L * 60 * 60 * 24 * 7;;
+    private static final long REFRESH_TOKEN_EXPIRATION = 1000L * 60 * 60 * 24 * 31;
     /* Explicacion de los valores para la expiracion de los tokens:
      * 1000 * 60 * 60 * 24 * 7
      * 1s * 60 = 1 min
