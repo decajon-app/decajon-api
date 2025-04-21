@@ -16,6 +16,9 @@ public class Repertoire
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "group_id")
+    private Long groupId;
+
     @Column(name = "song_id")
     private Long songId;
 
@@ -26,13 +29,16 @@ public class Repertoire
     private String comment;
 
     @Column
-    private Long performance;
+    private int performance;
 
     @Column
     private Long popularity;
 
     @Column
-    private LocalDateTime practiced;
+    private int complexity;
+
+    @Column(name = "practiced_at")
+    private LocalDateTime practicedAt;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
