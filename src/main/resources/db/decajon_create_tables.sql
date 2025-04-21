@@ -130,7 +130,7 @@ CREATE TABLE repertoires(
     PRIMARY KEY (id)
 );
 -- Create (group_id) index for filter songs in the repertoire by group
-CREATE INDEX idx_group ON repertoires(group_id)
+CREATE INDEX idx_group ON repertoires(group_id);
 
 
 -- Create Rehearsals Table
@@ -141,6 +141,7 @@ CREATE TABLE rehearsals(
     scheduled_at TIMESTAMP DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
 );
 
 
@@ -151,6 +152,6 @@ CREATE TABLE rehearsals_songs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (rehearsal_id) REFERENCES rehearsals(id) ON DELETE CASCADE,
-    FOREIGN KEY (song_id) REFERENCES repertoires(id) ON DELETE CASCADE,
+    FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE,
     PRIMARY KEY (rehearsal_id, song_id)
 );
