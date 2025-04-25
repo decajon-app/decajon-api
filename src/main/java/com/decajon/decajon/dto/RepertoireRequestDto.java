@@ -5,8 +5,11 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@RequiredArgsConstructor
 public class RepertoireRequestDto
 {
     @NotNull
@@ -36,4 +39,12 @@ public class RepertoireRequestDto
     private int complexity;
 
     private int duration;
+
+    public RepertoireRequestDto(Long groupId, String songTitle, String artist, String tone)
+    {
+        this.groupId = groupId;
+        this.title = songTitle;
+        this.artist = artist;
+        this.tone = tone;
+    }
 }
