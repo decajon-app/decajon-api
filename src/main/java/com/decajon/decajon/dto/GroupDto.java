@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class GroupDto
 {
     @NotBlank(message = "El campo {id} del grupo se encuentra vacío.")
-    private Integer id;
+    private Long id;
 
     @NotNull(message = "El campo {ownerId} del grupo se encuentra vacío.")
     private Integer ownerId;

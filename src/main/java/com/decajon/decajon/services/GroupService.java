@@ -15,6 +15,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -84,5 +85,16 @@ public class GroupService
             return true;
         }
         return false;
+    }
+
+    public List<GroupDto> getGroupsByUserId(Long userId)
+    {
+        return userGroupRepository.findByIdUserId(userId)
+                .stream()
+                .map(usersGroup -> groupRepository.findById(usersGroup.getId().getGroupId()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(groupMapper::toDto)
+                .collect(Collectors.toList());
     }
 }
