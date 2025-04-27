@@ -1,9 +1,6 @@
 package com.decajon.decajon.services;
 
-import com.decajon.decajon.dto.CreateGroupDto;
-import com.decajon.decajon.dto.GroupDto;
-import com.decajon.decajon.dto.RepertoireRequestDto;
-import com.decajon.decajon.dto.UserRequestDto;
+import com.decajon.decajon.dto.*;
 import com.decajon.decajon.mappers.GroupMapper;
 import com.decajon.decajon.mappers.UserMapper;
 import com.decajon.decajon.models.Group;
@@ -25,21 +22,8 @@ import java.util.Iterator;
 @ConditionalOnProperty(name = "decajon.excelimport.enabled", havingValue = "true")
 public class ExcelImporter implements CommandLineRunner
 {
-    // Repositories needed for import repertoire from excel file
-    private final RepertoireRepository repertoireRepository;
-    private final SongRepository songRepository;
-    private final GenreRepository genreRepository;
-    private final ArtistRepository artistRepository;
-
-    // Repositories needed for create and save user and group (mariachi mexcalli)
-    private final UserRepository userRepository;
-    private final GroupRepository groupRepository;
-
-    // Mappers
-    private final UserMapper userMapper;
-    private final GroupMapper groupMapper;
-
     // Services
+    private final UserService userService;
     private final GroupService groupService;
     private final RepertoireService repertoireService;
 
@@ -108,7 +92,7 @@ public class ExcelImporter implements CommandLineRunner
                 "Gonzalez"
         );
         // Creating Edgar user
-        User edgar = userRepository.save(userMapper.toEntity(edgarDto));
+        UserDto edgar = userService.createUser(edgarDto);
 
         // Creating Mexcalli Dto
         CreateGroupDto mexcalliDto = new CreateGroupDto(

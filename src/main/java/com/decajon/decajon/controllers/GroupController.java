@@ -5,6 +5,7 @@ import com.decajon.decajon.dto.GroupDto;
 import com.decajon.decajon.services.GroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,18 +23,9 @@ public class GroupController
     @PostMapping
     public ResponseEntity<GroupDto> createGroup(@RequestBody @Valid CreateGroupDto groupDto)
     {
-        System.out.println("HOLA");
         GroupDto newGroup = groupService.createGroup(groupDto);
         return ResponseEntity.ok(newGroup);
     }
-
-
-    @GetMapping
-    public ResponseEntity<List<GroupDto>> getAllGroups()
-    {
-        return ResponseEntity.ok(groupService.getAllGroups());
-    }
-
 
     @GetMapping("/{id}")
     public ResponseEntity<GroupDto> getGroupById(@PathVariable Long id)
@@ -42,6 +34,16 @@ public class GroupController
         return group.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<List<GroupDto>> getGroupsByUserId(@PathVariable Long userId)
+    {
+        List<GroupDto> groups = groupService.getGroupsByUserId(userId);
+        if (groups.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204, si el usuario no tiene grupos
+        }
+
+        return ResponseEntity.ok(groups);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGroup(@PathVariable Long id)
