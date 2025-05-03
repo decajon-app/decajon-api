@@ -16,8 +16,9 @@ public class Artist
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "group_id")
-    private Long groupId;
+    @ManyToOne
+    @JoinColumn(name = "group_id", referencedColumnName = "id")
+    private Group group;
 
     @Column
     private String artist;

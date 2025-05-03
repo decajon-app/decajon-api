@@ -16,11 +16,13 @@ public class Repertoire
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "group_id")
-    private Long groupId;
+    @ManyToOne
+    @JoinColumn(name = "group_id", referencedColumnName = "id")
+    private Group group;
 
-    @Column(name = "song_id")
-    private Long songId;
+    @ManyToOne
+    @JoinColumn(name = "song_id", referencedColumnName = "id")
+    private Song song;
 
     @Column(length = 3)
     private String tone;

@@ -51,7 +51,7 @@ public class GroupService
 
         // Ahora se inserta la relacion usuario-grupo
         UserGroupDto newUserGroupDto = new UserGroupDto(
-            savedGroup.getOwnerId(),
+            savedGroup.getUser().getId(),
             savedGroup.getId(),
             savedGroup.getPassword(),
             "OWNER"

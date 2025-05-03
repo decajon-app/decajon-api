@@ -18,8 +18,9 @@ public class Rehearsal
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "group_id", nullable = false)
-    private Integer groupId;
+    @ManyToOne
+    @JoinColumn(name = "group_id", referencedColumnName = "id")
+    private Group group;
 
     @Column(length = 15, nullable = false, columnDefinition = "VARCHAR(15) DEFAULT 'PENDING'")
     private String pending = "PENDING";

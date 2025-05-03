@@ -18,8 +18,9 @@ public class Genre
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "group_id", nullable = false)
-    private Long groupId;
+    @ManyToOne
+    @JoinColumn(name = "group_id", referencedColumnName = "id")
+    private Group group;
 
     @Column(nullable = false, length = 25)
     private String genre;
