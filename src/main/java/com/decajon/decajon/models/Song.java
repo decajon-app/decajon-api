@@ -17,14 +17,17 @@ public class Song
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "group_id")
-    private Long groupId;
+    @ManyToOne
+    @JoinColumn(name = "group_id", referencedColumnName = "id")
+    private Group group;
 
-    @Column(name = "genre_id")
-    private Long genreId;
+    @ManyToOne
+    @JoinColumn(name = "genre_id", referencedColumnName = "id")
+    private Genre genre;
 
-    @Column(name = "artist_id")
-    private Long artistId;
+    @ManyToOne
+    @JoinColumn(name = "artist_id", referencedColumnName = "id")
+    private Artist artist;
 
     @Column
     private String title;

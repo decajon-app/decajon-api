@@ -1,31 +1,26 @@
 package com.decajon.decajon.services;
 
-import com.decajon.decajon.dto.GenreDto;
 import com.decajon.decajon.dto.RepertoireDto;
 import com.decajon.decajon.dto.RepertoireRequestDto;
+import com.decajon.decajon.dto.RepertoireSongCardDto;
 import com.decajon.decajon.mappers.RepertoireMapper;
-import com.decajon.decajon.models.Artist;
-import com.decajon.decajon.models.Genre;
-import com.decajon.decajon.models.Repertoire;
-import com.decajon.decajon.models.Song;
-import com.decajon.decajon.repositories.ArtistRepository;
-import com.decajon.decajon.repositories.GenreRepository;
-import com.decajon.decajon.repositories.RepertoireRepository;
-import com.decajon.decajon.repositories.SongRepository;
+import com.decajon.decajon.models.*;
+import com.decajon.decajon.repositories.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class RepertoireService
 {
     private final RepertoireRepository repertoireRepository;
+    private final GroupRepository groupRepository;
     private final SongRepository songRepository;
     private final GenreRepository genreRepository;
     private final ArtistRepository artistRepository;
@@ -35,8 +30,16 @@ public class RepertoireService
     @Transactional
     public RepertoireDto addSong(RepertoireRequestDto repertoireDto)
     {
-        Long artistId = null;
-        Long genreId = null;
+        // Recuperar el grupo
+        Group group = groupRepository.findById(repertoireDto.getGroupId())
+            .orElseThrow(() -> new RuntimeException(
+                "No se encontró el grupo con el id: " + repertoireDto.getGroupId()
+            )
+        );
+
+        // Genero y artista con default value (pueden existir o no)
+        Genre genre = null;
+        Artist artist = null;
 
         // 1. Buscar un genero existente (Crear uno si no existe)
         // Si el genero es diff de null y si no es una cadena vacia
@@ -48,15 +51,14 @@ public class RepertoireService
 
             if(optGenre.isPresent())
             {
-                genreId = optGenre.get().getId();
+                genre = optGenre.get();
             }
             else
             {
                 Genre newGenre = new Genre();
-                newGenre.setGroupId(repertoireDto.getGroupId());
+                newGenre.setGroup(group);
                 newGenre.setGenre(repertoireDto.getGenre().trim());
-                Genre savedGenre = genreRepository.save(newGenre);
-                genreId = savedGenre.getId();
+                genre = genreRepository.save(newGenre);
             }
         }
 
@@ -70,31 +72,30 @@ public class RepertoireService
 
             if(optArtist.isPresent())
             {
-                artistId = optArtist.get().getId();
+                artist = optArtist.get();
             }
             else
             {
                 Artist newArtist = new Artist();
-                newArtist.setGroupId(repertoireDto.getGroupId());
+                newArtist.setGroup(group);
                 newArtist.setArtist(repertoireDto.getArtist().trim());
-                Artist savedArtist = artistRepository.save(newArtist);
-                artistId = savedArtist.getId();
+                artist = artistRepository.save(newArtist);
             }
         }
 
         // 3. Crear la canción
         Song newSong = new Song();
-        newSong.setGroupId(repertoireDto.getGroupId());
+        newSong.setGroup(group);
         newSong.setTitle(repertoireDto.getTitle().trim());
-        newSong.setArtistId(artistId);
-        newSong.setGenreId(genreId);
+        newSong.setGenre(genre);
+        newSong.setArtist(artist);
         newSong.setDuration(repertoireDto.getDuration());
         Song savedSong = songRepository.save(newSong);
 
         // 4. Crear la entrada en el repertorio
         Repertoire repertoire = new Repertoire();
-        repertoire.setGroupId(repertoireDto.getGroupId());
-        repertoire.setSongId(savedSong.getId());
+        repertoire.setGroup(group);
+        repertoire.setSong(savedSong);
         repertoire.setTone(repertoireDto.getTone());
         repertoire.setComment(repertoireDto.getComment());
         repertoire.setPerformance(repertoireDto.getPerformance());
@@ -115,12 +116,9 @@ public class RepertoireService
     }
 
 
-    public List<RepertoireDto> getRepertoireByGroupId(Long groupId)
+    public List<RepertoireSongCardDto> getRepertoireByGroupId(Long groupId)
     {
-        return repertoireRepository.findBySong_GroupId(groupId)
-                .stream()
-                .map(repertoireMapper::toDto)
-                .collect(Collectors.toList());
+        return new ArrayList<>(repertoireRepository.findRepertoireSongsCardsByGroupId(groupId));
     }
 
 
@@ -152,5 +150,11 @@ public class RepertoireService
             throw new EntityNotFoundException("Registro de repertorio no encontrado, id: " + id);
         }
         repertoireRepository.deleteById(id);
+    }
+
+    private int parseDuration(String formattedDuration)
+    {
+        String[] parts = formattedDuration.split(":");
+        return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
     }
 }

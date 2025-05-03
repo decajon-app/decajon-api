@@ -27,8 +27,9 @@ public class Group
     @Column
     private String description;
 
-    @Column(name = "owner_id", nullable = false)
-    private Long ownerId;
+    @ManyToOne
+    @JoinColumn(name = "owner_id", referencedColumnName = "id")
+    private User user;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
