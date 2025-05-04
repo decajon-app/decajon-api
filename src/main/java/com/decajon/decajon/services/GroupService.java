@@ -5,11 +5,13 @@ import com.decajon.decajon.dto.UserGroupDto;
 import com.decajon.decajon.mappers.GroupMapper;
 import com.decajon.decajon.mappers.UserGroupMapper;
 import com.decajon.decajon.models.Group;
+import com.decajon.decajon.models.User;
 import com.decajon.decajon.models.UserGroup;
 import com.decajon.decajon.repositories.GroupRepository;
 import com.decajon.decajon.dto.GroupDto;
 
 import com.decajon.decajon.repositories.UserGroupRepository;
+import com.decajon.decajon.repositories.UserRepository;
 import com.decajon.decajon.utils.GroupPasswordGenerator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +31,7 @@ public class GroupService
 
     private final GroupRepository groupRepository;
     private final UserGroupRepository userGroupRepository;
-
+    private final UserRepository userRepository;
 
     @Transactional
     public GroupDto createGroup(CreateGroupDto groupRequestDto)
@@ -45,13 +47,15 @@ public class GroupService
         String generatedPassword = GroupPasswordGenerator.generateRandomPassword();
         newGroupDto.setPassword(generatedPassword);
 
+        Optional<User> owner = userRepository.findById(newGroupDto.getOwnerId());
         // Se guarda primero el grupo
         Group newGroup = groupMapper.toEntity(newGroupDto);
+        newGroup.setOwner(owner.get());
         Group savedGroup = groupRepository.save(newGroup);
 
         // Ahora se inserta la relacion usuario-grupo
         UserGroupDto newUserGroupDto = new UserGroupDto(
-            savedGroup.getUser().getId(),
+            savedGroup.getOwner().getId(),
             savedGroup.getId(),
             savedGroup.getPassword(),
             "OWNER"

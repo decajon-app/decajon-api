@@ -1,19 +1,21 @@
 package com.decajon.decajon.services;
 
-import com.decajon.decajon.dto.RepertoireDto;
-import com.decajon.decajon.dto.RepertoireRequestDto;
-import com.decajon.decajon.dto.RepertoireSongCardDto;
+import com.decajon.decajon.dto.*;
 import com.decajon.decajon.mappers.RepertoireMapper;
 import com.decajon.decajon.models.*;
 import com.decajon.decajon.repositories.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 @RequiredArgsConstructor
 @Service
@@ -26,6 +28,11 @@ public class RepertoireService
     private final ArtistRepository artistRepository;
     private final RepertoireMapper repertoireMapper;
 
+    // RestTemplate para hacer request a FSRS
+    private final RestTemplate restTemplate;
+
+    @Value("${FSRS_SERVICE_URL}")
+    private String FSRS_SERVICE_URL;
 
     @Transactional
     public RepertoireDto addSong(RepertoireRequestDto repertoireDto)
@@ -102,7 +109,37 @@ public class RepertoireService
         repertoire.setPopularity(repertoireDto.getPopularity());
         repertoire.setComplexity(repertoireDto.getComplexity());
 
+        // Realizar la insercion en la base de datos
         Repertoire newRepertoire = repertoireRepository.save(repertoire);
+
+        // Crear una nueva card (llamada a FSRS Service)
+        Long repertoireId = newRepertoire.getId();
+        if (repertoireId != null)
+        {
+            String fsrsServiceCardUrl = UriComponentsBuilder.fromUriString(FSRS_SERVICE_URL)
+                .path("/init_card/" + repertoireId)
+                .build()
+                .toUriString();
+
+            CardData cardData = null;
+            try {
+                cardData = restTemplate.getForObject(fsrsServiceCardUrl, CardData.class);
+                System.out.println(cardData);
+            }
+            catch (Exception e)
+            {
+                System.out.println(e.getMessage());
+            }
+
+            // Actualizar el campo card de la tabla
+            newRepertoire.setCard(cardData);
+            repertoireRepository.save(newRepertoire);
+        }
+        else
+        {
+            // handle repertoireId error
+        }
+
         return repertoireMapper.toDto(newRepertoire);
     }
 

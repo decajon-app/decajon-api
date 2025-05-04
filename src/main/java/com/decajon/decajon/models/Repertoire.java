@@ -3,6 +3,9 @@ package com.decajon.decajon.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -38,6 +41,10 @@ public class Repertoire
 
     @Column
     private int complexity;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "card", columnDefinition = "jsonb", nullable = false)
+    private CardData card;
 
     @Column(name = "practiced_at")
     private LocalDateTime practicedAt;

@@ -29,7 +29,7 @@ public class Group
 
     @ManyToOne
     @JoinColumn(name = "owner_id", referencedColumnName = "id")
-    private User user;
+    private User owner;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

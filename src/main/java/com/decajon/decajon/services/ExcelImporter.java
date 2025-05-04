@@ -95,10 +95,7 @@ public class ExcelImporter implements CommandLineRunner
         UserDto edgar = userService.createUser(edgarDto);
 
         // Creating Mexcalli Dto
-        CreateGroupDto mexcalliDto = new CreateGroupDto(
-          "Mariachi Mexcalli",
-          edgar.getId()
-        );
+        CreateGroupDto mexcalliDto = new CreateGroupDto("Mariachi Mexcalli", edgar.getId());
         // Creating Mexcalli group
         GroupDto mexcalli = groupService.createGroup(mexcalliDto);
 

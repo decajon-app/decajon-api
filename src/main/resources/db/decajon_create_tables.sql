@@ -120,6 +120,7 @@ CREATE TABLE repertoires(
     performance INT DEFAULT 0,
     popularity INT DEFAULT 0,
     complexity INT DEFAULT 0,
+    card JSONB DEFAULT NULL,
     practiced_at TIMESTAMP DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

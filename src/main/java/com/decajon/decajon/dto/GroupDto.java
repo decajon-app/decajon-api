@@ -18,7 +18,7 @@ public class GroupDto
     private Long id;
 
     @NotNull(message = "El campo {ownerId} del grupo se encuentra vacío.")
-    private Integer ownerId;
+    private Long ownerId;
 
     @NotNull(message = "El campo {name} del grupo se encuentra vacío.")
     private String name;
