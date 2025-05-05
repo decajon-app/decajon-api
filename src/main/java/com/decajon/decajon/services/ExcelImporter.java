@@ -91,8 +91,19 @@ public class ExcelImporter implements CommandLineRunner
                 "Edgar",
                 "Gonzalez"
         );
+
+        // Creating Liss Dto
+        UserRequestDto lissDto = new UserRequestDto(
+                "liss@mexcalli.com",
+                "decajon1234",
+                "Lisseth",
+                "Martinez"
+        );
+
         // Creating Edgar user
         UserDto edgar = userService.createUser(edgarDto);
+        // Creating Liss user
+        userService.createUser(lissDto);
 
         // Creating Mexcalli Dto
         CreateGroupDto mexcalliDto = new CreateGroupDto("Mariachi Mexcalli", edgar.getId());
