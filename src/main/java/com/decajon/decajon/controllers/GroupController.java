@@ -54,4 +54,10 @@ public class GroupController
         }
         return ResponseEntity.notFound().build();
     }
+
+    @GetMapping("/{groupId}/members/count")
+    public ResponseEntity<Long> getGroupMemberByCountById(@PathVariable Long groupId)
+    {
+        return ResponseEntity.ok(groupService.getGroupMembersCount(groupId));
+    }
 }

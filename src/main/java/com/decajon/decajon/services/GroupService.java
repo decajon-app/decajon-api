@@ -101,4 +101,9 @@ public class GroupService
                 .map(groupMapper::toDto)
                 .collect(Collectors.toList());
     }
+    
+    public Long getGroupMembersCount(Long groupId)
+    {
+        return userGroupRepository.countByGroupId(groupId);
+    }
 }
