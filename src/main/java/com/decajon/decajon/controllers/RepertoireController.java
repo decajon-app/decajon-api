@@ -3,6 +3,7 @@ package com.decajon.decajon.controllers;
 import com.decajon.decajon.dto.RepertoireDto;
 import com.decajon.decajon.dto.RepertoireRequestDto;
 import com.decajon.decajon.dto.RepertoireSongCardDto;
+import com.decajon.decajon.dto.RepertoireSongDto;
 import com.decajon.decajon.services.RepertoireService;
 import jakarta.validation.Valid;
 import lombok.Builder;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
@@ -50,6 +52,20 @@ public class RepertoireController
             errorResponse.put("message", e.getMessage());
             return new ResponseEntity<>("Error al añador la canción al repertorio: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/{repertoireId}/song-details")
+    public ResponseEntity<?> getSongDetails(@PathVariable Long repertoireId)
+    {
+        Optional<RepertoireSongDto> songDetails = repertoireService.getSongDetailsByRepertoireId(repertoireId);
+        if (songDetails.isPresent())
+        {
+            return new ResponseEntity<>(songDetails.get(), HttpStatus.OK);
+        }
+        else
+        {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 

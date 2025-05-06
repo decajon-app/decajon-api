@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -141,6 +142,11 @@ public class RepertoireService
         }
 
         return repertoireMapper.toDto(newRepertoire);
+    }
+
+    public Optional<RepertoireSongDto> getSongDetailsByRepertoireId(Long repertoireId)
+    {
+        return repertoireRepository.findSongDetailsByRepertoireId(repertoireId);
     }
 
     @Transactional
