@@ -1,6 +1,7 @@
 package com.decajon.decajon.services;
 
 import com.decajon.decajon.dto.CreateGroupDto;
+import com.decajon.decajon.dto.GroupMemberDto;
 import com.decajon.decajon.dto.UserGroupDto;
 import com.decajon.decajon.mappers.GroupMapper;
 import com.decajon.decajon.mappers.UserGroupMapper;
@@ -101,9 +102,14 @@ public class GroupService
                 .map(groupMapper::toDto)
                 .collect(Collectors.toList());
     }
-    
+
     public Long getGroupMembersCount(Long groupId)
     {
         return userGroupRepository.countByGroupId(groupId);
+    }
+
+    public Optional<List<GroupMemberDto>> getGroupMemberList(Long groupId)
+    {
+        return Optional.ofNullable(userGroupRepository.findGroupMembers(groupId));
     }
 }

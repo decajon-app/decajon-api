@@ -1,16 +1,15 @@
 package com.decajon.decajon.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @Getter
-public class UserDto
+@Setter
+public class GroupMemberDto
 {
-    private Long id;
+    private Long userId;
     private String firstName;
     private String lastName;
-    private String email;
 }

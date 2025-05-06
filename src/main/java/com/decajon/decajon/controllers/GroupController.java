@@ -2,6 +2,7 @@ package com.decajon.decajon.controllers;
 
 import com.decajon.decajon.dto.CreateGroupDto;
 import com.decajon.decajon.dto.GroupDto;
+import com.decajon.decajon.dto.GroupMemberDto;
 import com.decajon.decajon.services.GroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -59,5 +60,13 @@ public class GroupController
     public ResponseEntity<Long> getGroupMemberByCountById(@PathVariable Long groupId)
     {
         return ResponseEntity.ok(groupService.getGroupMembersCount(groupId));
+    }
+
+    @GetMapping("/{groupId}/members")
+    public ResponseEntity<List<GroupMemberDto>> getGroupMembers(@PathVariable Long groupId)
+    {
+        Optional<List<GroupMemberDto>> members = groupService.getGroupMemberList(groupId);
+        return members.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

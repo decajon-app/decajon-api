@@ -1,5 +1,6 @@
 package com.decajon.decajon.repositories;
 
+import com.decajon.decajon.dto.GroupMemberDto;
 import com.decajon.decajon.models.UserGroup;
 import com.decajon.decajon.models.UserGroupId;
 import jakarta.persistence.QueryHint;
@@ -20,4 +21,8 @@ public interface UserGroupRepository extends JpaRepository<UserGroup, UserGroupI
 
     @Query("SELECT COUNT(ug) FROM UserGroup ug WHERE ug.id.groupId = :groupId")
     long countByGroupId(@Param("groupId") Long groupId);
+
+    @Query("SELECT new com.decajon.decajon.dto.GroupMemberDto(ug.id.userId, u.firstName, u.lastName) " +
+            "FROM UserGroup ug JOIN User u ON ug.id.userId = u.id WHERE ug.id.groupId = :groupId")
+    List<GroupMemberDto> findGroupMembers(@Param("groupId") Long groupId);
 }
