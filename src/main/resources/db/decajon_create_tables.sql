@@ -128,6 +128,7 @@ CREATE TABLE repertoires(
     CONSTRAINT chk_song_complexity_range CHECK (complexity BETWEEN 0 AND 10),
     CONSTRAINT chk_song_practiced_not_future CHECK (practiced_at <= CURRENT_TIMESTAMP),
     FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE,
+    FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
 );
 -- Create (group_id) index for filter songs in the repertoire by group
@@ -142,6 +143,7 @@ CREATE TABLE rehearsals(
     scheduled_at TIMESTAMP DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE,
     PRIMARY KEY (id)
 );
 

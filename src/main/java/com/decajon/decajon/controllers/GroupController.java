@@ -39,10 +39,6 @@ public class GroupController
     public ResponseEntity<List<GroupDto>> getGroupsByUserId(@PathVariable Long userId)
     {
         List<GroupDto> groups = groupService.getGroupsByUserId(userId);
-        if (groups.isEmpty()) {
-            return ResponseEntity.noContent().build(); // 204, si el usuario no tiene grupos
-        }
-
         return ResponseEntity.ok(groups);
     }
 
