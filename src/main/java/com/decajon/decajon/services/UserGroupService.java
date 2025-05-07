@@ -1,6 +1,7 @@
 package com.decajon.decajon.services;
 
 import com.decajon.decajon.dto.UserGroupDto;
+import com.decajon.decajon.dto.UserGroupPermissionDto;
 import com.decajon.decajon.mappers.UserGroupMapper;
 import com.decajon.decajon.models.Group;
 import com.decajon.decajon.models.UserGroup;
@@ -8,7 +9,6 @@ import com.decajon.decajon.models.UserGroupId;
 import com.decajon.decajon.repositories.GroupRepository;
 import com.decajon.decajon.repositories.UserGroupRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -77,5 +77,27 @@ public class UserGroupService
         UserGroup newUserGroup = userGroupMapper.toEntity(newUserGroupDto);
         UserGroup createdUserGroup = userGroupRepository.save(newUserGroup);
         return userGroupMapper.toDto(createdUserGroup);
+    }
+
+    public String getPermissionLevel(Long userId, Long groupId)
+    {
+        UserGroupId id = new UserGroupId(userId, groupId);
+
+        return userGroupRepository.findById(id)
+                .map(UserGroup::getRole)
+                .orElseThrow(() -> new RuntimeException("El usuario no pertenece al grupo"));
+    }
+
+    public boolean removeMemberFromGroup(Long groupId, Long userId)
+    {
+        /* boolean isMember = userGroupRepository.isMemberOfGroup(groupId, userId);
+
+        if(!isMember)
+        {
+            return false;
+        }*/
+
+        userGroupRepository.deleteById(new UserGroupId(userId, groupId));
+        return true;
     }
 }
