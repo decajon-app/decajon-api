@@ -7,10 +7,13 @@ import com.decajon.decajon.services.GroupService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -43,13 +46,13 @@ public class GroupController
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteGroup(@PathVariable Long id)
+    public ResponseEntity<Object> deleteGroup(@PathVariable Long id)
     {
-        if(groupService.deleteGroup(id))
+        if(groupService.deleteGroupById(id))
         {
-          return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(Map.of("message", "Grupo eliminado exitosamente"));
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("Error", "Grupo no encontrado"));
     }
 
     @GetMapping("/{groupId}/members/count")
