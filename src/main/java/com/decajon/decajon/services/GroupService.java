@@ -83,7 +83,7 @@ public class GroupService
                 .collect(Collectors.toList());
     }
 
-    public boolean deleteGroup(Long id)
+    public boolean deleteGroupById(Long id)
     {
         if (groupRepository.existsById(id)) {
             groupRepository.deleteById(id);
