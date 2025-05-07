@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserGroupRepository extends JpaRepository<UserGroup, UserGroupId>
@@ -25,4 +26,7 @@ public interface UserGroupRepository extends JpaRepository<UserGroup, UserGroupI
     @Query("SELECT new com.decajon.decajon.dto.GroupMemberDto(ug.id.userId, u.firstName, u.lastName) " +
             "FROM UserGroup ug JOIN User u ON ug.id.userId = u.id WHERE ug.id.groupId = :groupId")
     List<GroupMemberDto> findGroupMembers(@Param("groupId") Long groupId);
+
+    @Query("SELECT COUNT(ug) > 0 FROM UserGroup ug WHERE ug.id.groupId = :groupId AND ug.id.userId = :userId")
+    boolean isMemberOfGroup(Long groupId, Long userId);
 }
