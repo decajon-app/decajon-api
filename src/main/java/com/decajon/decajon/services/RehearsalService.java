@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -84,7 +85,7 @@ public class RehearsalService
     {
         return null;
     }
-    private Set<Song> getSongsFromIds(Set<Long> songIds) {
+    private Set<Song> getSongsFromIds(Collection<Long> songIds) {
         List<Song> songs = songRepository.findAllById(songIds);
         if (songs.size() != songIds.size()) {
             throw new EntityNotFoundException("Una o más canciones no fueron encontradas");
