@@ -4,10 +4,11 @@ package com.decajon.decajon.models;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "rehearsals")
@@ -18,25 +19,30 @@ public class Rehearsal
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "group_id", referencedColumnName = "id")
     private Group group;
 
-    @Column(length = 15, nullable = false, columnDefinition = "VARCHAR(15) DEFAULT 'PENDING'")
-    private String pending = "PENDING";
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "VARCHAR(15) DEFAULT 'PENDING'")
+    private RehearsalStatus status = RehearsalStatus.PENDING;
 
-    @Column(name = "schedulet_at")
-    private LocalDateTime createdAt;
+    @Column(name = "scheduled_at")
+    private LocalDateTime scheduledAt;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime updatedAt;
+    private LocalDateTime created_at;
 
-    @ManyToMany
+    @UpdateTimestamp
+    @Column(name = "updated_at", updatable = false)
+    private LocalDateTime updated_at;
+
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "rehearsals_songs",
             joinColumns = @JoinColumn(name = "rehearsal_id"),
             inverseJoinColumns = @JoinColumn(name = "song_id")
     )
-    private List<Song> songs = new ArrayList<>();
+    private Set<Song> songs = new HashSet<>();
 }

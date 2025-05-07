@@ -1,9 +1,12 @@
 package com.decajon.decajon.services;
 
 import com.decajon.decajon.dto.RehearsalDto;
+import com.decajon.decajon.dto.UpdateRehearsalDto;
 import com.decajon.decajon.mappers.RehearsalMapper;
+import com.decajon.decajon.models.Group;
 import com.decajon.decajon.models.Rehearsal;
 import com.decajon.decajon.models.Song;
+import com.decajon.decajon.repositories.GroupRepository;
 import com.decajon.decajon.repositories.RehearsalRepository;
 import com.decajon.decajon.repositories.SongRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -11,38 +14,81 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RehearsalService
 {
     private final RehearsalRepository rehearsalRepository;
+    private final GroupRepository groupRepository;
     private final SongRepository songRepository;
     private final RehearsalMapper rehearsalMapper;
 
-    public RehearsalDto getRehearsalById(Long id)
+    public List<RehearsalDto> listByGroup(Long groupId)
     {
-        Rehearsal rehearsal = rehearsalRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Rehearsal not found with id: " + id));
-        return rehearsalMapper.toDto(rehearsal);
+        if (!groupRepository.existsById(groupId))
+        {
+            throw new EntityNotFoundException("Grupo no encontrado para recuperar ensayos.");
+        }
+
+        List<Rehearsal> rehearsals = rehearsalRepository.findByGroupId(groupId);
+        return rehearsals.stream()
+                .map(rehearsalMapper::toDto)
+                .toList();
     }
 
     @Transactional
-    public RehearsalDto createRehearsal(RehearsalDto rehearsalDto)
+    public RehearsalDto create(Long groupId, RehearsalDto rehearsalDto)
     {
-        Rehearsal rehearsal = rehearsalMapper.toEntity(rehearsalDto);
-        if(rehearsalDto.getSongIds() != null && !rehearsalDto.getSongIds().isEmpty())
-        {
-            List<Song> songs = songRepository.findAllById(rehearsalDto.getSongIds());
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new EntityNotFoundException("Grupo no encontrado"));
+
+        Rehearsal rehearsal = new Rehearsal();
+        rehearsal.setGroup(group);
+        rehearsal.setScheduledAt(rehearsalDto.scheduledAt().atStartOfDay());
+
+        if (rehearsalDto.songIds() != null && !rehearsalDto.songIds().isEmpty()) {
+            Set<Song> songs = getSongsFromIds(rehearsalDto.songIds());
             rehearsal.setSongs(songs);
         }
-        Rehearsal savedRehearsal = rehearsalRepository.save(rehearsal);
-        return rehearsalMapper.toDto(savedRehearsal);
+
+        return rehearsalMapper.toDto(rehearsalRepository.save(rehearsal));
     }
 
-    public void deleteRehearsal(Long id)
+    public RehearsalDto getById(Long id)
     {
-        rehearsalRepository.deleteById(id);
+        return null;
+    }
+
+    public RehearsalDto updateById(Long id, UpdateRehearsalDto rehearsalDto)
+    {
+        return null;
+    }
+
+    public void deleteById(Long id)
+    {
+
+    }
+
+    public RehearsalDto addSongsById(Long id, Set<Long> songIds)
+    {
+        return null;
+    }
+
+    public RehearsalDto removeSongsById(Long id, Set<Long> songIds)
+    {
+        return null;
+    }
+    private Set<Song> getSongsFromIds(Set<Long> songIds) {
+        List<Song> songs = songRepository.findAllById(songIds);
+        if (songs.size() != songIds.size()) {
+            throw new EntityNotFoundException("Una o más canciones no fueron encontradas");
+        }
+        return new HashSet<>(songs);
     }
 }
