@@ -1,13 +1,10 @@
 package com.decajon.decajon.controllers;
 
-import com.decajon.decajon.dto.RepertoireDto;
-import com.decajon.decajon.dto.RepertoireRequestDto;
-import com.decajon.decajon.dto.RepertoireSongCardDto;
-import com.decajon.decajon.dto.RepertoireSongDto;
+import com.decajon.decajon.dto.*;
 import com.decajon.decajon.services.RepertoireService;
 import jakarta.validation.Valid;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +20,6 @@ import java.util.Optional;
 public class RepertoireController
 {
     public final RepertoireService repertoireService;
-
 
     /**
      * Recibe un DTO que contiene toda la información de la canción a agregar
@@ -67,6 +63,54 @@ public class RepertoireController
         {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    /**
+     *
+     */
+    @PostMapping("/review-card")
+    public ResponseEntity<Map<String, String>> reviewCard(@RequestBody @Valid RepertoireReviewSongDto reviewSongDto)
+    {
+        try
+        {
+            repertoireService.reviewCard(reviewSongDto);
+            return ResponseEntity.ok(Map.of("message", "Se ha hecho review de la card correctamente"));
+        }
+        catch (Exception e)
+        {
+            return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("Error", "Error procesando la revisión de la carta: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Este endpoint recibe el id del usuario y regresa la lista de canciones que tiene para ensayar.
+     * En el service busca todos los grupos a los que pertenece ese usuario, y despues busca todas
+     * las sugerencias que tiene para ensayar.
+     *
+     * Regresa una lista de sugerencias, cada sugerencia tiene los siguientes campos:
+     * - ID del repertorio
+     * - Nombre de la cancion
+     * - Grupo al que pertenece la sugerencia
+     * - Artista al que pertenece la cancion
+     * - Fecha en que vence el ensayo
+     * - Rendimiento de la cancion
+     * @param userId
+     * @return List<SuggestionCardDto>
+     */
+    @GetMapping("/user/{userId}/suggestions")
+    public ResponseEntity<List<SuggestionCardDto>> getSuggestionsByUserId(@PathVariable Long userId)
+    {
+        List<SuggestionCardDto> suggestions = repertoireService.getSuggestionsByUserId(userId);
+        return ResponseEntity.ok(suggestions);
+    }
+
+    @GetMapping("/group/{groupId}/suggestions")
+    public ResponseEntity<List<SuggestionCardDto>> getSuggestionsByGroupId(@PathVariable Long groupId)
+    {
+        List<SuggestionCardDto> suggestions = repertoireService.getSuggestionsByGroupId(groupId);
+        return ResponseEntity.ok(suggestions);
     }
 
     /**

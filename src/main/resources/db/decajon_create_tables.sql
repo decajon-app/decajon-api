@@ -115,7 +115,7 @@ CREATE TABLE repertoires(
     id SERIAL NOT NULL,
     group_id INT NOT NULL,
     song_id INT NOT NULL,
-    tone VARCHAR(3) DEFAULT NULL,
+    tone VARCHAR(30) DEFAULT NULL,
     comment VARCHAR(255) DEFAULT NULL,
     performance INT DEFAULT 0,
     popularity INT DEFAULT 0,
