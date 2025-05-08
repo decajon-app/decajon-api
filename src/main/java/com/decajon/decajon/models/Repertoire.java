@@ -27,7 +27,7 @@ public class Repertoire
     @JoinColumn(name = "song_id", referencedColumnName = "id")
     private Song song;
 
-    @Column(length = 3)
+    @Column(length = 30)
     private String tone;
 
     @Column

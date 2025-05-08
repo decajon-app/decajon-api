@@ -4,6 +4,10 @@ import com.decajon.decajon.dto.*;
 import com.decajon.decajon.mappers.RepertoireMapper;
 import com.decajon.decajon.models.*;
 import com.decajon.decajon.repositories.*;
+import com.decajon.decajon.utils.DateTimeConverter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +15,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import javax.swing.text.html.Option;
+import java.net.http.HttpRequest;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 @RequiredArgsConstructor
 @Service
@@ -28,6 +34,7 @@ public class RepertoireService
     private final GenreRepository genreRepository;
     private final ArtistRepository artistRepository;
     private final RepertoireMapper repertoireMapper;
+    private final ObjectMapper objectMapper;
 
     // RestTemplate para hacer request a FSRS
     private final RestTemplate restTemplate;
@@ -158,6 +165,55 @@ public class RepertoireService
         return repertoireMapper.toDto(savedRepertoire);
     }
 
+    @Transactional
+    public void reviewCard(RepertoireReviewSongDto reviewSongDto)
+    {
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        // Verificar si existe una entrada en la tabla con el id proporcionado
+        Optional<Repertoire> optRepertoire = repertoireRepository.findById(reviewSongDto.repertoireId());
+        if(optRepertoire.isEmpty()) {
+            throw new EntityNotFoundException("No existe una entrada con ese ID.");
+        }
+
+        // 1. Recuperar la col 'card' de la tabla Repertoires
+        String jsonCard = repertoireRepository.findCardJsonById(reviewSongDto.repertoireId());
+        if (jsonCard == null) {
+            throw new EntityNotFoundException("El id proporcionado no cuenta con una card inicializada");
+        }
+
+        // 2. Construir el request para mandar a review_card de FSRS
+        String fsrsServiceReviewCardUrl = UriComponentsBuilder.fromUriString(FSRS_SERVICE_URL)
+                .path("/review_card/" + reviewSongDto.repertoireId())
+                .build()
+                .toUriString();
+        CardData updatedCardData = null;
+        try
+        {
+            CardData cardData = objectMapper.readValue(jsonCard, CardData.class);
+            if(cardData.getStep() == null) {
+                cardData.setStep(0);
+            }
+            ReviewCardRequestDto reviewCardRequestDto = new ReviewCardRequestDto(
+                    reviewSongDto.rating(),
+                    OffsetDateTime.now(ZoneOffset.UTC),
+                    cardData
+            );
+            System.out.println("Pre-review: " + reviewCardRequestDto.card_data());
+            updatedCardData = restTemplate.postForObject(fsrsServiceReviewCardUrl, reviewCardRequestDto, CardData.class);
+            System.out.println("Post-review: " + updatedCardData);
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException("Error en el servidor FSRS, no se pudo procesar la card.");
+        }
+
+        Repertoire repertoireToUpdate = optRepertoire.get();
+        repertoireToUpdate.setCard(updatedCardData);
+        repertoireRepository.save(repertoireToUpdate);
+    }
+
 
     public List<RepertoireSongCardDto> getRepertoireByGroupId(Long groupId)
     {
@@ -199,5 +255,31 @@ public class RepertoireService
     {
         String[] parts = formattedDuration.split(":");
         return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
+    }
+
+    public List<SuggestionCardDto> getSuggestionsByUserId(Long userId)
+    {
+        return repertoireRepository.findSuggestionsByUserId(userId).stream()
+                .map(p -> new SuggestionCardDto(
+                        p.getRepertoireId(),
+                        p.getTitle(),
+                        p.getArtist(),
+                        p.getGroup(),
+                        p.getPerformance(),
+                        DateTimeConverter.convertToGuadalajaraTime(p.getDueDate())
+                )).limit(5).toList();
+    }
+
+    public List<SuggestionCardDto> getSuggestionsByGroupId(Long groupId)
+    {
+        return repertoireRepository.findSuggestionsByGroupId(groupId).stream()
+                .map(p -> new SuggestionCardDto(
+                        p.getRepertoireId(),
+                        p.getTitle(),
+                        p.getArtist(),
+                        p.getGroup(),
+                        p.getPerformance(),
+                        DateTimeConverter.convertToGuadalajaraTime(p.getDueDate())
+                )).limit(5).toList();
     }
 }

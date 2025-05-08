@@ -40,11 +40,12 @@ public class RepertoireRequestDto
 
     private int duration;
 
-    public RepertoireRequestDto(Long groupId, String songTitle, String artist, String tone)
+    public RepertoireRequestDto(Long groupId, String songTitle, String artist, String tone, int performance)
     {
         this.groupId = groupId;
         this.title = songTitle;
         this.artist = artist;
         this.tone = tone;
+        this.performance = performance;
     }
 }

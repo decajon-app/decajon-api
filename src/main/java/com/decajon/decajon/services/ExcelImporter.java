@@ -66,14 +66,15 @@ public class ExcelImporter implements CommandLineRunner
 
             String songTitle = getStringValue(row.getCell(0));
             String artist = getStringValue(row.getCell(1));
-            String tone = getStringValue(row.getCell(4));
-            tone = (tone == null || tone.isEmpty()) ? "" : tone.substring(0,2);
+            String tone = getStringValue(row.getCell(2));
+            Long performance = getIntegerValue(row.getCell(3));
 
             RepertoireRequestDto repertoireDto = new RepertoireRequestDto(
                     groupId,
                     songTitle,
                     artist,
-                    tone
+                    tone,
+                    Math.toIntExact(performance)
             );
 
             repertoireService.addSong(repertoireDto);

@@ -3,6 +3,7 @@ package com.decajon.decajon.repositories;
 import com.decajon.decajon.dto.RepertoireSongCardDto;
 import com.decajon.decajon.dto.RepertoireSongDto;
 import com.decajon.decajon.models.Repertoire;
+import com.decajon.decajon.projections.SuggestionCardProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -49,4 +50,49 @@ public interface RepertoireRepository extends JpaRepository<Repertoire, Long>
             "LEFT JOIN Artist a ON s.artist.id = a.id " +
             "WHERE r.id = :repertoireId")
     Optional<RepertoireSongDto> findSongDetailsByRepertoireId(@Param("repertoireId") Long repertoireId);
+
+    @Query(value = "SELECT card FROM repertoires WHERE id = :id", nativeQuery = true)
+    String findCardJsonById(@Param("id") Long id);
+
+    @Query(
+        value = """
+            SELECT\s
+                r.id AS repertoireId,
+                s.title AS title,
+                a.artist AS artist,
+                r.performance AS performance,
+                to_timestamp((r.card->>'due')::double precision) AS dueDate,
+                g.name AS group
+            FROM repertoires r
+            JOIN songs s ON r.song_id = s.id
+            JOIN artists a ON s.artist_id = a.id
+            JOIN users_groups ug ON r.group_id = ug.group_id
+            JOIN groups g ON g.id = r.group_id
+            WHERE ug.user_id = :userId
+              AND (r.card->>'due') IS NOT NULL
+              AND to_timestamp((r.card->>'due')::double precision) BETWEEN now() AND now() + interval '7 days'
+            ORDER BY dueDate ASC
+        """,
+        nativeQuery = true
+    )
+    List<SuggestionCardProjection> findSuggestionsByUserId(@Param("userId") Long userId);
+
+    @Query(value = """
+    SELECT\s
+        r.id AS repertoireId,
+        s.title AS title,
+        a.artist AS artist,
+        r.performance AS performance,
+        to_timestamp((r.card->>'due')::double precision) AS dueDate,
+        g.name AS group
+    FROM repertoires r
+    JOIN songs s ON r.song_id = s.id
+    JOIN artists a ON s.artist_id = a.id
+    JOIN groups g ON g.id = r.group_id
+    WHERE g.id = :groupId
+      AND (r.card->>'due') IS NOT NULL
+      AND to_timestamp((r.card->>'due')::double precision) BETWEEN now() - interval '7 days' AND now() + interval '7 days'
+    ORDER BY dueDate ASC
+    """, nativeQuery = true)
+    List<SuggestionCardProjection> findSuggestionsByGroupId(@Param("groupId") Long groupId);
 }
